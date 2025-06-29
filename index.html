@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Podcast Metrics Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    .header { background: #333; color: #fff; padding: 1rem; text-align: center; }
+    .cards { display: flex; justify-content: space-around; margin: 1rem; }
+    .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem; flex: 1; margin: 0 0.5rem; text-align: center; }
+    .card h2 { margin: 0; font-size: 1.5rem; }
+    .card p { font-size: 2rem; margin: 0.5rem 0 0; }
+    table { width: 90%; margin: 1rem auto; border-collapse: collapse; background: #fff; }
+    th, td { padding: 0.75rem; text-align: center; border-bottom: 1px solid #ddd; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Podcast Metrics Dashboard</h1>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h2>iTunes Reviews</h2>
+      <p id="reviews-count">--</p>
+    </div>
+    <div class="card">
+      <h2>Chart Rank</h2>
+      <p id="chart-rank">--</p>
+    </div>
+    <div class="card">
+      <h2>Estimated Plays</h2>
+      <p id="plays-count">--</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Reviews</th>
+        <th>Rank</th>
+        <th>Plays</th>
+      </tr>
+    </thead>
+    <tbody id="metrics-rows">
+      <!-- Data rows go here -->
+    </tbody>
+  </table>
+
+  <script>
+    // Mock fetch function - replace endpoints with your actual APIs
+    async function fetchMetrics() {
+      try {
+        // Example: pull from a published Google Sheet as JSON
+        const resp = await fetch('https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/RawMetrics?key=YOUR_API_KEY');
+        const data = await resp.json();
+        const rows = data.values || [];
+
+        // First row is header, skip it
+        rows.slice(1).forEach(r => {
+          const [ts, reviews, rank, plays] = r;
+          // Fill latest cards
+          document.getElementById('reviews-count').textContent = reviews;
+          document.getElementById('chart-rank').textContent = rank;
+          document.getElementById('plays-count').textContent = plays;
+
+          // Append to table
+          const tr = document.createElement('tr');
+          [ts, reviews, rank, plays].forEach(txt => {
+            const td = document.createElement('td'); td.textContent = txt; tr.appendChild(td);
+          });
+          document.getElementById('metrics-rows').appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load metrics:', err);
+      }
+    }
+    fetchMetrics();
+  </script>
+</body>
+</html>
+
